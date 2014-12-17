@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+	<style>
+	</style>
+</head>
+<body>
+	<input type="file" id='file' value='上传文件'>
+</body>
+</html>
+<script>
+	(function($){
+		var Upload = {
+		opts: {
+			file: $('#file'), //填写file按钮的id
+			url: 'http://upload.qiniu.com/',  //填写提交地址，这里是七牛
+			key: '',  //填写所需的key
+			uptoken: '' //填写所需的uptoken
+		},
+		init: function(){
+			this.opts.file.bind('change',function(){
+			// 获得上传的第一个文件
+			this.readImg(this.file[0]);
+			});
+		},
+		readImg: function(file){
+			// 判断文件的类型是不是image
+			if(file.type.match(/image/)){
+				var reader = new FileReader();
+				//readAsBinary()则直接转成2进制
+				reader.readAsDataURL(file); 
+				reader.onload = function(e){
+					var base64 = this.result; 
+					//这里是需要上传的图片的base64编码，是未经压缩的，你可以改成压缩后的base64
+					this.uploadImg(base64, file.name);
+				}
+			}
+			else {
+				alert('请上传图片类型文件');
+			}
+		},
+		uploadImg: function(){
+			//模拟发送表单请求，token和file必填
+			var body, boundary, fileName, fileContent;
+			//base64参数
+			fileName = arguemnts[0]; 
+			//fileName参数
+			fileContent = arguments[1]; 
+			body = '';
+			//手动设置假占位符
+			boundary = '--------------------56423498738365'; 
+
+			var xhr = new XMLHttpRequest();
+			// 模仿表单提交，url填写七牛的表单提交地址
+			xhr.open('post', this.ops.url, true); 
+			xhr.sendRequestHeader("Content-Type", "multipart/form-data, boundary="+boundary); //模拟请求头
+			// 模拟数据, 这里一个空格都不能错，可能会有bug
+			body += '--' + boundary + '\r\n';
+			body += 'Content-Disposition: form-data; name="key"' + '\r\n';
+			body += this.opts.key + '\r\n';
+			body += '--' + boundary + '\r\n';
+			body += 'Content-Disposition: form-data; name="token"' + '\r\n';
+			body += this.opts.token + '\r\n';
+			body += '--' + boundary + '\r\n';
+			body += 'Content-Disposition: form-data; name="file"; filename="'+fileName +'"' + '\r\n';
+			body += 'Content-Type:' + 'image/*' + '\r\n';
+			body += fileContent + '\r\n';
+			body += '--' + boundary + '\r\n';
+
+			xhr.sendAsBinary(body);
+			
+		}
+	}
+
+	Upload.init();
+	})(jQuery);
+	
+</script>
